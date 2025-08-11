@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Blog Islami - Sansalf</title>
+<link rel="icon" href="data:;base64,iVBORw0KGgo=">
+<style>
+  :root{
+    --primary:#0b8f6a;
+    --accent:#0a74c2;
+    --dark:#2d3436;
+    --card-bg: rgba(255,255,255,0.96);
+    --glass: rgba(255,255,255,0.85);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background: url('https://i.ibb.co/dK2mS2s/islamic-pattern.png') center/cover fixed no-repeat;
+    color:#222;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    line-height:1.6;
+  }
+  header{
+    background: linear-gradient(135deg,var(--primary),var(--accent));
+    color:#fff;
+    padding:28px 16px;
+    text-align:center;
+  }
+  header h1{margin:0;font-size:clamp(1.4rem,3vw,2rem)}
+  header p{margin:6px 0 0;opacity:0.95}
+  nav{
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    flex-wrap:wrap;
+    padding:10px;
+    background:rgba(0,0,0,0.45);
+    position:sticky;
+    top:0;
+    z-index:20;
+  }
+  nav a{
+    color:#fff;
+    text-decoration:none;
+    padding:8px 12px;
+    border-radius:8px;
+    font-weight:600;
+    background:transparent;
+  }
+  nav a.active, nav a:hover{background:rgba(255,255,255,0.08)}
+  .wrap{max-width:1000px;margin:26px auto;padding:0 16px}
+  .controls{
+    display:flex;
+    gap:8px;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:14px;
+  }
+  .search{
+    flex:1;
+  }
+  input[type="search"], select{
+    width:100%;
+    padding:10px 12px;
+    border-radius:10px;
+    border:1px solid rgba(0,0,0,0.12);
+    background:var(--glass);
+    outline:none;
+  }
+  .grid{
+    display:grid;
+    grid-template-columns: 1fr 320px;
+    gap:18px;
+  }
+  @media(max-width:900px){ .grid{grid-template-columns:1fr} .sidebar{order:2} }
+  .post-list{ }
+  article.card{
+    background: var(--card-bg);
+    padding:20px;
+    border-radius:12px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    margin-bottom:18px;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  article.card:hover{ transform: translateY(-4px); box-shadow:0 12px 30px rgba(0,0,0,0.12) }
+  article.card h2{margin:0 0 6px; color:var(--accent)}
+  article.card small{color:#666}
+  .excerpt{margin:12px 0}
+  .read-more{
+    display:inline-block;
+    padding:8px 14px;
+    border-radius:8px;
+    background:var(--primary);
+    color:#fff;
+    text-decoration:none;
+    font-weight:700;
+  }
+  .sidebar{
+    position:relative;
+  }
+  .card-side{
+    background:var(--card-bg);
+    padding:18px;
+    border-radius:12px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.06);
+    margin-bottom:18px;
+  }
+  .tags{display:flex;gap:8px;flex-wrap:wrap}
+  .tag{padding:6px 10px;border-radius:999px;background:rgba(0,0,0,0.06);cursor:pointer}
+  footer{
+    text-align:center;
+    margin:30px 0 50px;
+    color:#fff;
+    background:linear-gradient(180deg, rgba(0,0,0,0.12), rgba(0,0,0,0.2));
+    padding:18px 8px;
+    border-top:1px solid rgba(255,255,255,0.05);
+  }
+
+  /* Article full view modal */
+  .modal{
+    position:fixed;inset:0;display:none;align-items:center;justify-content:center;
+    background:rgba(0,0,0,0.5);z-index:90;padding:18px;
+  }
+  .modal .inner{
+    max-width:900px;width:100%;max-height:90vh;overflow:auto;background:var(--card-bg);
+    padding:22px;border-radius:12px;box-shadow:0 18px 50px rgba(0,0,0,0.35)
+  }
+  .close-btn{
+    display:inline-block;margin-top:12px;padding:8px 12px;border-radius:8px;background:#555;color:#fff;text-decoration:none;
+  }
+
+  /* Typography inside article body */
+  .article-body h3{color:var(--primary);margin-top:12px}
+  blockquote{border-left:4px solid var(--accent);padding:10px 12px;margin:12px 0;background:rgba(10,10,10,0.02)}
+  ol,ul{margin-left:20px}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Blog Islami — Sansalf</h1>
+  <p>Berbagi tuntunan hidup sesuai Al-Qur'an, Hadits, dan akhlak Nabi ﷺ</p>
+</header>
+
+<nav>
+  <a href="#" class="active" data-filter="all">Beranda</a>
+  <a href="#" data-filter="akhlak">Akhlak</a>
+  <a href="#" data-filter="ibadah">Ibadah</a>
+  <a href="#" data-filter="ilmu">Ilmu</a>
+  <a href="#" data-filter="kisah">Kisah</a>
+  <a href="#" data-filter="about">Tentang</a>
+</nav>
+
+<div class="wrap">
+  <div class="controls">
+    <div style="flex:1;margin-right:10px" class="search">
+      <input id="search" type="search" placeholder="Cari artikel (kata kunci)...">
+    </div>
+    <div style="width:200px">
+      <select id="sort">
+        <option value="new">Terbaru</option>
+        <option value="old">Terlama</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="post-list" id="post-list">
+      <!-- Post cards akan dimasukkan di sini oleh JS -->
+    </div>
+
+    <aside class="sidebar">
+      <div class="card-side">
+        <h3>Kategori</h3>
+        <div class="tags" id="category-tags">
+          <span class="tag" data-filter="all">Semua</span>
+          <span class="tag" data-filter="ilmu">Ilmu</span>
+          <span class="tag" data-filter="ibadah">Ibadah</span>
+          <span class="tag" data-filter="akhlak">Akhlak</span>
+          <span class="tag" data-filter="kisah">Kisah</span>
+        </div>
+      </div>
+
+      <div class="card-side">
+        <h3>Tentang Penulis</h3>
+        <p>Assalamu'alaikum — Saya berusaha menulis hal bermanfaat seputar agama, adab, dan kehidupan sehari-hari berdasarkan Al-Qur'an dan Sunnah, jikalau ada kesalahan dalam penulisan ataupun dalil saya mohon maaf yang sebesar-besarnya.</p>
+      </div>
+
+      <div class="card-side">
+        <h3>Artikel Populer</h3>
+        <ol id="popular-list" style="padding-left:18px;margin:0"></ol>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<footer>
+  &copy; 2025 Blog Islami Sansalf • Dibuat untuk pembelajaran & dakwah ringan
+</footer>
+
+<!-- Modal untuk tampilan lengkap artikel -->
+<div id="modal" class="modal" role="dialog" aria-hidden="true">
+  <div class="inner" role="document">
+    <div id="modal-content"></div>
+    <a href="#" id="close-modal" class="close-btn">Tutup</a>
+  </div>
+</div>
+
+<script>
+/*
+  Data artikel panjang sesuai tuntunan Islam.
+  Setiap artikel berisi judul, tanggal, kategori, excerpt, dan isi lengkap (HTML).
+*/
+const posts = [
+  {
+    id: 1,
+    title: "Keutamaan Menuntut Ilmu",
+    date: "8 Agustus 2025",
+    category: "ilmu",
+    excerpt: "Menuntut ilmu adalah kewajiban bagi setiap Muslim. Artikel ini membahas dalil, adab, dan langkah praktis menuntut ilmu yang bermanfaat.",
+    body: `
+      <p>Menuntut ilmu memiliki kedudukan tinggi dalam Islam. Nabi ﷺ bersabda: <em>"Menuntut ilmu adalah kewajiban atas setiap Muslim."</em> (HR. Ibn Majah).</p>
+
+      <h3>A. Dalil dan Hikmah</h3>
+      <p>Al-Qur'an mengingatkan tentang pentingnya ilmu: Allah memberitakan bahwa orang yang berilmu akan berada pada derajat yang lebih tinggi (QS. Al-Mujadilah:11). Ilmu membuka jalan untuk memahami agama, menjalankan ibadah dengan benar, dan memberi manfaat kepada umat.</p>
+
+      <h3>B. Adab Menuntut Ilmu</h3>
+      <ol>
+        <li><strong>Niat yang ikhlas</strong> — belajar untuk mendapatkan ridha Allah, bukan sekadar pujian manusia.</li>
+        <li><strong>Memuliakan guru</strong> — hormati orang yang mengajarkan dan jaga akhlak saat menuntut ilmu.</li>
+        <li><strong>Menulis dan mengamalkan</strong> — ilmu yang bermanfaat adalah yang diamalkan dan diajarkan kembali.</li>
+        <li><strong>Istiqamah</strong> — konsistensi lebih penting daripada kuantitas cepat.</li>
+      </ol>
+
+      <h3>C. Langkah Praktis</h3>
+      <ul>
+        <li>Buat jadwal belajar harian (misal 30–60 menit fokus tiap hari).</li>
+        <li>Pilih sumber yang terpercaya: guru yang sanad bila untuk ilmu syar'i, atau referensi berkualitas untuk ilmu dunia.</li>
+        <li>Gabungkan membaca, mencatat, dan diskusi — menulis mempermudah ingatan.</li>
+        <li>Ajarkan kembali: mengajarkan adalah tanda benar-benar memahami.</li>
+      </ul>
+
+      <blockquote>“Barangsiapa menempuh suatu jalan untuk menuntut ilmu, Allah memudahkan baginya jalan ke surga.” (HR. Muslim, lafaz sebagai gambaran kebaikan menuntut ilmu).</blockquote>
+
+      <p>Kesimpulannya: menuntut ilmu harus disertai adab, niat yang lurus, dan amal agar ilmu memberi cahaya bagi diri sendiri dan orang lain.</p>
+    `
+  },
+
+  {
+    id: 2,
+    title: "Adab dalam Berbicara",
+    date: "7 Agustus 2025",
+    category: "akhlak",
+    excerpt: "Lisan bisa menjadi jalan kebaikan atau kehancuran. Yuk pelajari adab berbicara menurut Al-Qur'an dan Sunnah beserta contoh praktisnya.",
+    body: `
+      <p>Rasulullah ﷺ menekankan pentingnya menjaga lisan. Beliau bersabda: <em>"Barangsiapa yang beriman kepada Allah dan hari akhir, hendaklah ia berkata yang baik atau diam."</em> (HR. Bukhari & Muslim).</p>
+
+      <h3>A. Prinsip Utama</h3>
+      <ul>
+        <li><strong>Kebenaran</strong> — jangan berdusta atau menyebarkan berita tanpa bukti.</li>
+        <li><strong>Kebaikan</strong> — ucapkan hal yang bermanfaat, menenangkan, dan membangun.</li>
+        <li><strong>Hormat</strong> — berbicara sopan kepada siapa pun, termasuk yang lebih tua dan lebih muda.</li>
+      </ul>
+
+      <h3>B. Larangan yang Perlu Dihindari</h3>
+      <ol>
+        <li><strong>Ghibah</strong> (mengumpat di belakang): membicarakan kekurangan saudara seiman.</li>
+        <li><strong>Namimah</strong> (mengadu domba): menyebarkan ujaran untuk memecah belah.</li>
+        <li><strong>Fitnah</strong> atau tuduhan tanpa bukti.</li>
+      </ol>
+
+      <h3>C. Contoh Praktis</h3>
+      <p>Jika marah: tarik napas, tahan lisan, dan pilih kata yang menenangkan. Dalam media sosial: pikir dulu dampak sebelum posting. Tunjukkan empati ketika teman mengalami kesulitan.</p>
+
+      <blockquote>Menjaga lisan adalah bagian penting dari iman dan akhlak; lisan yang terjaga menjaga kehormatan dan hubungan antar sesama.</blockquote>
+    `
+  },
+
+  {
+    id: 3,
+    title: "Pentingnya Shalat Tepat Waktu",
+    date: "6 Agustus 2025",
+    category: "ibadah",
+    excerpt: "Shalat adalah tiang agama; melaksanakannya di awal waktu menumbuhkan disiplin dan mendekatkan diri kepada Allah. Artikel membahas dalil, manfaat, dan tips praktis.",
+    body: `
+      <p>Allah berfirman: <em>“Sesungguhnya shalat itu adalah kewajiban yang ditentukan waktunya atas orang-orang yang beriman.”</em> (QS. An-Nisa:103). Shalat bukan sekadar ritual; ia adalah hubungan langsung hamba dengan Rabb.</p>
+
+      <h3>A. Keutamaan Menjaga Waktu Shalat</h3>
+      <ul>
+        <li>Menunjukkan ketaatan dan disiplin.</li>
+        <li>Mencegah perbuatan maksiat karena hati terus terhubung dengan zikir.</li>
+        <li>Menjadi bukti iman yang nyata di hadapan Allah.</li>
+      </ul>
+
+      <h3>B. Hambatan dan Solusi</h3>
+      <ol>
+        <li><strong>Sibuk kerja/studi:</strong> atur alarm dan jadwalkan jeda shalat.</li>
+        <li><strong>Kelalaian:</strong> perbanyak ingatan (reminder) dengan menetapkan rutinitas tetap.</li>
+        <li><strong>Tidur berlebihan:</strong> tidur lebih awal dan bangun lebih awal jika perlu.</li>
+      </ol>
+
+      <h3>C. Tips Praktis</h3>
+      <p>Siapkan tempat wudhu yang mudah diakses, gunakan aplikasi pengingat waktu shalat, gabungkan niat memprioritaskan shalat dalam agenda harian, dan shalat berjamaah bila memungkinkan karena pahalanya lebih besar.</p>
+
+      <blockquote>Shalat yang khusyuk menenangkan hati dan menjadi penopang dalam setiap ujian kehidupan.</blockquote>
+    `
+  },
+
+  {
+    id: 4,
+    title: "Akhlak Terpuji dalam Kehidupan Sehari-hari",
+    date: "5 Agustus 2025",
+    category: "akhlak",
+    excerpt: "Akhlak mulia adalah identitas seorang Muslim. Artikel ini merangkum sifat utama yang perlu dikembangkan dan cara praktis mengamalkannya.",
+    body: `
+      <p>Rasulullah ﷺ bersabda: <em>"Sesungguhnya orang yang paling aku cintai di antara kalian adalah yang paling baik akhlaknya."</em> (HR. Bukhari).</p>
+
+      <h3>A. Sifat-sifat Utama</h3>
+      <ol>
+        <li><strong>Jujur</strong> — berkata benar dalam semua keadaan.</li>
+        <li><strong>Amanah</strong> — menyimpan kepercayaan dan melaksanakan tugas.</li>
+        <li><strong>Sabar</strong> — menerima ujian dengan lapang dada dan usaha.</li>
+        <li><strong>Tawadhu'</strong> — rendah hati, tidak sombong.</li>
+      </ol>
+
+      <h3>B. Mengasah Akhlak dalam Praktik</h3>
+      <ul>
+        <li>Mulai dengan tindakan kecil: senyum pada orang lain, menolong tetangga, menjaga kebersihan.</li>
+        <li>Refleksi harian: evaluasi perilaku, minta ampun dan perbaiki yang kurang.</li>
+        <li>Teladani sirah: pelajari kisah Nabi dan sahabat sebagai contoh akhlak mulia.</li>
+      </ul>
+
+      <h3>C. Dampak Akhlak Baik</h3>
+      <p>Akhlak baik memperkuat ikatan sosial, memperlancar dakwah, dan menarik orang kepada kebaikan. Akhirnya, akhlak adalah cermin iman.</p>
+    `
+  },
+
+  {
+    id: 5,
+    title: "Kisah Teladan: Kesederhanaan Sahabat Umar bin Khattab",
+    date: "4 Agustus 2025",
+    category: "kisah",
+    excerpt: "Riwayat singkat tentang keteladanan Umar bin Khattab dalam kesederhanaan dan keadilan — pelajaran untuk kehidupan modern.",
+    body: `
+      <p>Umar bin Khattab radhiyallahu anhu terkenal dengan sikap tegas, adil, tetapi sangat sederhana dalam kehidupan pribadinya. Dalam banyak riwayat, beliau menolak fasilitas berlebih dan hidup sederhana meski menjadi khalifah.</p>
+
+      <h3>Pelajaran</h3>
+      <ol>
+        <li>Kepemimpinan yang adil berpijak pada kejujuran dan ketegasan.</li>
+        <li>Kesederhanaan mendekatkan hati kepada Allah dan masyarakat.</li>
+        <li>Keadilan wajib ditegakkan tanpa pandang bulu.</li>
+      </ol>
+
+      <p>Kisah-kisah sahabat mengajarkan kita bahwa posisi dan jabatan bukan alasan untuk meninggalkan akhlak luhur.</p>
+    `
+  }
+];
+
+// Utility: render cards
+const postList = document.getElementById('post-list');
+
+function createCard(post){
+  const art = document.createElement('article');
+  art.className = 'card';
+  art.innerHTML = `
+    <h2>${post.title}</h2>
+    <small>Diposting pada ${post.date} • Kategori: ${post.category}</small>
+    <p class="excerpt">${post.excerpt}</p>
+    <a href="#" class="read-more" data-id="${post.id}">Baca Selengkapnya</a>
+  `;
+  return art;
+}
+
+function renderPosts(list){
+  postList.innerHTML = '';
+  list.forEach(p => postList.appendChild(createCard(p)));
+  updatePopular(list);
+}
+
+// Initial render (terbaru dulu)
+renderPosts(posts.slice().sort((a,b)=> new Date(b.date) - new Date(a.date)));
+
+
+// Modal handling
+const modal = document.getElementById('modal');
+const modalContent = document.getElementById('modal-content');
+document.addEventListener('click', function(e){
+  const btn = e.target.closest('.read-more');
+  if(btn){
+    e.preventDefault();
+    const id = Number(btn.dataset.id);
+    const post = posts.find(x=>x.id===id);
+    if(post){
+      modalContent.innerHTML = `
+        <h1>${post.title}</h1>
+        <small>Diposting pada ${post.date} • Kategori: ${post.category}</small>
+        <div class="article-body">${post.body}</div>
+      `;
+      modal.style.display = 'flex';
+      modal.setAttribute('aria-hidden','false');
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+  }
+});
+
+document.getElementById('close-modal').addEventListener('click', function(e){
+  e.preventDefault();
+  modal.style.display = 'none';
+  modal.setAttribute('aria-hidden','true');
+});
+
+// Close modal when click outside
+modal.addEventListener('click', function(e){
+  if(e.target === modal){
+    modal.style.display = 'none';
+    modal.setAttribute('aria-hidden','true');
+  }
+});
+
+// Search & filter
+const searchInput = document.getElementById('search');
+const sortSelect = document.getElementById('sort');
+const categoryTags = document.querySelectorAll('.tag');
+const navLinks = document.querySelectorAll('nav a');
+
+function filterPosts({q='', category='all', sort='new'}={}){
+  let res = posts.filter(p => {
+    const txt = (p.title + ' ' + p.excerpt + ' ' + (p.body || '')).toLowerCase();
+    return txt.includes((q||'').toLowerCase());
+  });
+  if(category && category !== 'all'){
+    res = res.filter(p => p.category === category);
+  }
+  res.sort((a,b) => (sort==='new' ? new Date(b.date)-new Date(a.date) : new Date(a.date)-new Date(b.date)));
+  renderPosts(res);
+}
+
+searchInput.addEventListener('input', ()=> filterPosts({q:searchInput.value, category: currentCategory(), sort: sortSelect.value}));
+sortSelect.addEventListener('change', ()=> filterPosts({q:searchInput.value, category: currentCategory(), sort: sortSelect.value}));
+
+categoryTags.forEach(t => t.addEventListener('click', ()=>{
+  const f = t.dataset.filter;
+  setActiveCategory(f);
+  filterPosts({q:searchInput.value, category: f, sort: sortSelect.value});
+}));
+
+navLinks.forEach(n => n.addEventListener('click', function(e){
+  e.preventDefault();
+  const f = this.dataset.filter || 'all';
+  setActiveCategory(f);
+  filterPosts({q:searchInput.value, category: f, sort: sortSelect.value});
+}));
+
+function setActiveCategory(cat){
+  document.querySelectorAll('.tag, nav a').forEach(el=>{
+    if(el.dataset.filter === cat) el.classList.add('active');
+    else el.classList.remove('active');
+  });
+}
+
+// get current category selected (nav active)
+function currentCategory(){
+  const a = document.querySelector('nav a.active');
+  return a ? (a.dataset.filter || 'all') : 'all';
+}
+
+// Popular list (simple most recent)
+function updatePopular(list){
+  const popular = posts.slice().sort((a,b)=> new Date(b.date)-new Date(a.date)).slice(0,4);
+  const ol = document.getElementById('popular-list');
+  ol.innerHTML = '';
+  popular.forEach(p=>{
+    const li = document.createElement('li');
+    const a = document.createElement('a');
+    a.href = '#';
+    a.textContent = p.title;
+    a.dataset.id = p.id;
+    a.addEventListener('click', function(e){
+      e.preventDefault();
+      document.querySelector('.read-more[data-id="'+p.id+'"]').click();
+    });
+    li.appendChild(a);
+    ol.appendChild(li);
+  });
+}
+
+// Initialize active nav
+setActiveCategory('all');
+</script>
+
+</body>
+</html>
